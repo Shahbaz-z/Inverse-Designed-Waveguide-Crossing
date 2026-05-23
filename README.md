@@ -1,5 +1,7 @@
 # PIC Component Library
 
+Using ---  Chrostowski, L., & Hochberg, M. (2015). Silicon photonics design: From devices to systems. Cambridge University Press ---- as learning tool
+
 Parametric **layout-only** silicon photonics cells in [GDSFactory](https://gdsfactory.github.io/gdsfactory/). No simulation in this repo—only geometry you could send to a fab flow later.
 
 Components are added **one at a time**, with physics notes in this README so you know exactly what each pushed file represents.
