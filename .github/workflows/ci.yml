@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package and dev tools
+        run: pip install -e ".[dev]"
+
+      - name: Verify GDSFactory install
+        run: python scripts/verify_install.py
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Export GDS and layout previews
+        env:
+          MPLBACKEND: Agg
+        run: python scripts/export_gds.py
+
+      - name: Upload coupler sweep artifacts (when present)
+        if: hashFiles('gds_outputs/sweeps/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: gds-sweeps
+          path: gds_outputs/sweeps/

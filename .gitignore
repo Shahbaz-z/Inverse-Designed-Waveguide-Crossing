@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+.DS_Store
+.idea/
+.vscode/
+
+# Generated sweep batches (CI artifacts); keep committed examples in gds_outputs/
+gds_outputs/sweeps/
