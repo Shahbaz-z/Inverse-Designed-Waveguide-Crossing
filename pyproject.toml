@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pic-component-library"
+version = "0.1.0"
+description = "Parametric silicon photonics layout cells in GDSFactory (layout only, no simulation)."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "MIT" }
+dependencies = [
+    "gdsfactory>=9.40,<10",
+    "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "jupyter>=1",
+    "nbconvert>=7",
+]
+viewer = [
+    "klayout",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["components*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
