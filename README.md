@@ -119,6 +119,7 @@ A **directional coupler** is two parallel strip waveguides placed close enough t
 ### How coupling works (CMT, no simulation here)
 
 In **coupled-mode theory**, each guide carries a mode amplitude. The coupling coefficient κ (rad/µm in this layout-centric view) sets how fast energy sloshes between guides:
+--- This is the same physics seen with coupled oscillators, but adapted for waves ----
 
 - **Smaller gap** → stronger evanescent overlap → larger κ.
 - **Longer `coupling_length`** → more accumulated phase Δφ = κ L → more (or less) power transferred.
