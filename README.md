@@ -1,7 +1,5 @@
 # PIC Component Library
 
-Using ---  Chrostowski, L., & Hochberg, M. (2015). Silicon photonics design: From devices to systems. Cambridge University Press ---- as learning tool
-
 Parametric **layout-only** silicon photonics cells in [GDSFactory](https://gdsfactory.github.io/gdsfactory/). No simulation in this repo—only geometry you could send to a fab flow later.
 
 Components are added **one at a time**, with physics notes in this README so you know exactly what each pushed file represents.
@@ -33,9 +31,9 @@ python3.11 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 python scripts/verify_install.py
-
-GDSFactory 9+ needs an active PDK. Importing `from components import my_waveguide` activates the generic PDK (`gf.gpdk`) automatically.
 ```
+
+GDSFactory 9+ needs an active PDK. Importing from `components` activates the generic PDK (`gf.gpdk`) automatically.
 
 Optional local GDS viewer (not used in CI):
 
@@ -107,15 +105,87 @@ python scripts/export_gds.py
 
 ---
 
+
+---
+
+## Component 2: Directional coupler (`my_directional_coupler`)
+
+**Status:** implemented — [`components/directional_coupler.py`](components/directional_coupler.py)
+
+### What it is
+
+A **directional coupler** is two parallel strip waveguides placed close enough that their optical modes overlap. Power is exchanged between the guides by **evanescent coupling** in the straight section; S-bends separate the buses afterward so you get four accessible ports.
+
+### How coupling works (CMT, no simulation here)
+
+In **coupled-mode theory**, each guide carries a mode amplitude. The coupling coefficient κ (rad/µm in this layout-centric view) sets how fast energy sloshes between guides:
+--- This is the same physics seen with coupled oscillators, but adapted for waves ----
+
+- **Smaller gap** → stronger evanescent overlap → larger κ.
+- **Longer `coupling_length`** → more accumulated phase Δφ = κ L → more (or less) power transferred.
+
+For a symmetric coupler, a common result is that the **cross-port power fraction** scales as |sin(κ L)|². A **50:50 splitter** occurs when κ L = π/2, i.e. at the **coupling length** L_c = π / (2κ). This repo does not compute κ from Maxwell’s equations; you sweep `gap` and `coupling_length` in layout and validate later in measurement or EM tools.
+
+### Parameters (layout units: µm)
+
+| Argument | Default | Meaning |
+|----------|---------|---------|
+| `gap` | `0.2` | Edge-to-edge spacing between the two strip cores in the coupling region |
+| `coupling_length` | `10.0` | Length of the parallel coupling section |
+| `width` | `0.5` | Strip width of both guides |
+| `dx` | `10.0` | Horizontal offset from coupling region to bend (port spacing in x) |
+| `dy` | `4.0` | Centerline separation of the two buses outside the coupler |
+
+### Ports (GDSFactory convention)
+
+| Port | Typical role |
+|------|----------------|
+| `o1` | Input on upper bus |
+| `o2` | Through / bar port on upper bus |
+| `o3` | Cross port on lower bus |
+| `o4` | Input on lower bus |
+
+Exact routing follows `gf.components.coupler`; use `print(dc.ports)` on an instance to inspect coordinates before connecting in a circuit.
+
+### Usage
+
+```python
+from components import my_directional_coupler
+
+dc = my_directional_coupler(gap=0.2, coupling_length=10.0, width=0.5)
+dc.plot()
+print(dc.ports)
+```
+
+### Gap sweep (layout + qualitative plot)
+
+`scripts/export_gds.py` writes:
+
+- `gds_outputs/directional_coupler_example.gds` — default parameters above
+- `gds_outputs/sweeps/coupler_gap*.gds` — same `coupling_length`, gaps 0.15–0.30 µm (CI artifact; not committed)
+- `assets/coupler_gap_sweep.png` — |sin(κ L)|² vs gap using `cross_power_fraction()` (phenomenological κ(gap), for trend only)
+
+```python
+from components.directional_coupler import cross_power_fraction
+
+eta = cross_power_fraction(coupling_length=10.0, gap=0.2)
+```
+
+### Previews
+
+![Directional coupler layout](assets/directional_coupler.png)
+
+![Gap sweep (qualitative CMT)](assets/coupler_gap_sweep.png)
+
+
 ## Coming next (not in repo yet)
 
 | Component | File | Topic |
 |-----------|------|--------|
-| 2 — Directional coupler | `components/directional_coupler.py` | Evanescent coupling, gap vs. coupling length |
 | 3 — MZI | `components/mzi.py` | Phase arms, \(T = \cos^2(\pi \Delta L \cdot n_g / \lambda)\) |
 | 4 — Ring resonator | `components/ring_resonator.py` | \(2\pi r n_\mathrm{eff} = m\lambda\), FSR |
 
-Placeholder files exist so the folder structure is clear; they are not exported from `components/__init__.py` until implemented.
+Placeholder files exist for MZI and ring; they are not exported from `components/__init__.py` until implemented.
 
 ## License
 

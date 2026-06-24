@@ -5,7 +5,6 @@ import gdsfactory as gf
 
 @gf.cell
 def my_waveguide(length: float = 10.0, width: float = 0.5) -> gf.Component:
-    
     """Straight strip waveguide (parametric layout cell).
 
     Parameters
@@ -14,13 +13,11 @@ def my_waveguide(length: float = 10.0, width: float = 0.5) -> gf.Component:
         Propagation length along the waveguide axis, in micrometers (µm).
         GDSFactory uses µm as the layout unit; this is the distance between
         the input and output ports.
-
-# longer, more phase accumulation and delay is also set by length        
     width
         Core (strip) width in µm. Typical SOI strip widths are ~0.4–0.6 µm
         at 1550 nm. The 220 nm silicon thickness is set by the fab layer
-        stack (PDK), not by this 2D layout parameter.   - determines cross section of waveguide, affecting modes, (confinement, shape and effictive refractive index)
-- wider more modes (multimode support)
+        stack (PDK), not by this 2D layout parameter.
+
     Returns
     -------
     gf.Component
@@ -40,7 +37,7 @@ def my_waveguide(length: float = 10.0, width: float = 0.5) -> gf.Component:
     component = gf.Component()
     waveguide = component << gf.components.straight(
         length=length,
-        cross_section=gf.cross_section.strip(width=width),   ## simple function use in python to set length and width (defined at function)
+        cross_section=gf.cross_section.strip(width=width),
     )
-    component.add_ports(waveguide.ports) #### ensuring we can use the waveguide in the future for the input o1 and output o2
+    component.add_ports(waveguide.ports)
     return component
