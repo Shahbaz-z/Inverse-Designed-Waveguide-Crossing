@@ -14,11 +14,11 @@ def cross_power_fraction(
     kappa_scale: float = 3.0,
     gap_decay_um: float = 0.1,
 ) -> float:
-    """Qualitative coupled-mode estimate of cross-port power fraction.
+    """Qualitative coupled-mode estimate of cross-port (also known as coupled port) power fraction.
 
     Uses |sin(κ L)|² with κ ∝ exp(−gap / decay). This is **not** a substitute
     for EM simulation; it shows the trend that smaller gap and longer
-    interaction length increase power transfer.
+    interaction length increase power transfer. 
 
     Parameters
     ----------
@@ -29,8 +29,8 @@ def cross_power_fraction(
     kappa_scale, gap_decay_um
         Phenomenological parameters for the demo sweep plot only.
     """
-    kappa = kappa_scale * math.exp(-gap / gap_decay_um)
-    return math.sin(kappa * coupling_length) ** 2
+    kappa = kappa_scale * math.exp(-gap / gap_decay_um) "simple mathematical expression for the coupling coefficient"
+    return math.sin(kappa * coupling_length) ** 2 "mathematical expression for the power fraction"
 
 
 @gf.cell
@@ -47,7 +47,7 @@ def my_directional_coupler(
     ----------
     gap
         Separation between the inner edges of the two strip cores in µm.
-        Smaller gap increases evanescent overlap → stronger coupling
+        Smaller gap increases evanescent overlap (evanescent overlap is the amount of power that leaks out of the waveguide) → stronger coupling
         coefficient κ.
     coupling_length
         Length of the parallel straight section where the guides run
@@ -65,7 +65,7 @@ def my_directional_coupler(
     Returns
     -------
     gf.Component
-        Four-port cell with ports ``o1``–``o4`` (GDSFactory coupler convention).
+        Four-port cell with ports ``o1``–``o4`` (GDSFactory coupler convention). pretty self explanatory
 
     Notes
     -----
@@ -75,9 +75,10 @@ def my_directional_coupler(
     evanescent tail overlapping the other. In **coupled-mode theory (CMT)**,
     the amplitudes in the two guides exchange energy with a coupling
     coefficient κ. The power cross-over scales as |sin(κ L)|² for a
-    symmetric coupler over length L.
+    symmetric coupler over length L. - i will simulate this with maxwell equations in project 2
 
-    The **coupling length** for 50:50 splitting is L_c = π / (2κ). You do
+    The **coupling length** for 50:50 splitting is L_c = π / (2κ) (this equation comes from coupled mode theory i have seen in oscialations second year physics with pendulums and coupled pendulums).
+     You do
     not need to compute κ in this repo; layout controls are ``gap`` (sets κ
     via overlap) and ``coupling_length`` (sets how much power transfers).
 

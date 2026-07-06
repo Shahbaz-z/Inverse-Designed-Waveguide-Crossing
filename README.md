@@ -171,6 +171,12 @@ from components.directional_coupler import cross_power_fraction
 eta = cross_power_fraction(coupling_length=10.0, gap=0.2)
 ```
 
+### Interpreting the gap sweep
+
+The plot uses a phenomenological model κ(gap) = κ_scale·exp(−gap/decay) with κ_scale = 3.0 and decay = 0.1 µm, then η = |sin(κL)|². At the default gap = 0.2 µm and L = 10 µm, κL ≈ 4.06 so η ≈ 0.63 (~63% cross, ~37% bar)—the device is **over-coupled** past the first 50:50 point. A 50:50 splitter needs κL = π/2; in this model that occurs near **gap ≈ 0.30 µm** at L = 10 µm.
+
+Cross power is **not monotonic in gap** at fixed L: smaller gap increases κ, advancing Δφ = κL along a sin² oscillation so power can slosh back to the bar port (e.g. gap = 0.15 µm → η ≈ 0.16). The sweep GDS files show layout geometry only; the PNG connects layout knobs to expected qualitative trend, not measured splitting. κ(gap) is illustrative—Project 2 (Tidy3D) will validate against EM simulation.
+
 ### Previews
 
 ![Directional coupler layout](assets/directional_coupler.png)
@@ -178,14 +184,107 @@ eta = cross_power_fraction(coupling_length=10.0, gap=0.2)
 ![Gap sweep (qualitative CMT)](assets/coupler_gap_sweep.png)
 
 
-## Coming next (not in repo yet)
+## Component 3: Mach–Zehnder interferometer (`my_mzi`)
 
-| Component | File | Topic |
-|-----------|------|--------|
-| 3 — MZI | `components/mzi.py` | Phase arms, \(T = \cos^2(\pi \Delta L \cdot n_g / \lambda)\) |
-| 4 — Ring resonator | `components/ring_resonator.py` | \(2\pi r n_\mathrm{eff} = m\lambda\), FSR |
+**Status:** implemented — [`components/mzi.py`](components/mzi.py)
 
-Placeholder files exist for MZI and ring; they are not exported from `components/__init__.py` until implemented.
+### What it is
+
+A **Mach–Zehnder interferometer (MZI)** splits light with a first directional coupler, propagates it through two arms of different length, then recombines with a second coupler. The path difference \(\Delta L\) creates a phase shift between arms.
+
+### How it works
+
+For a symmetric 50:50 MZI, the through-port transmission is:
+
+\[
+T = \cos^2\!\left(\frac{\pi \Delta L \cdot n_g}{\lambda}\right)
+\]
+
+where \(n_g\) is the group index and \(\lambda\) is the wavelength. Changing `delta_length` shifts the interference fringe pattern. The MZI is built from two couplers (see Component 2) connected by waveguide arms.
+
+### Parameters (layout units: µm)
+
+| Argument | Default | Meaning |
+|----------|---------|---------|
+| `delta_length` | `10.0` | Path length difference between the two arms |
+| `bend_radius` | `10.0` | Bend radius in the MZI arms |
+
+### Ports
+
+Two optical ports (`o1`, `o2`) following GDSFactory `mzi` convention (input and output). Use `print(mzi.ports)` to inspect coordinates.
+
+### Usage
+
+```python
+from components import my_mzi
+from components.mzi import mzi_transmission
+
+mzi = my_mzi(delta_length=10.0, bend_radius=10.0)
+mzi.plot()
+print(mzi.ports)
+
+T = mzi_transmission(delta_length=10.0)  # qualitative analytic T
+```
+
+### Previews
+
+![MZI layout](assets/mzi.png)
+
+![MZI ΔL sweep (analytic)](assets/mzi_delta_length_sweep.png)
+
+
+## Component 4: Ring resonator (`my_ring`)
+
+**Status:** implemented — [`components/ring_resonator.py`](components/ring_resonator.py)
+
+### What it is
+
+A **ring resonator** couples light from a straight bus waveguide into a closed ring via evanescent overlap. At resonance, power builds up in the ring; off resonance, light passes through the bus.
+
+### How it works
+
+Resonance condition (round-trip phase):
+
+\[
+2\pi r \cdot n_\mathrm{eff} = m \lambda
+\]
+
+Free spectral range (spacing between adjacent resonances):
+
+\[
+\mathrm{FSR} \approx \frac{\lambda^2}{n_g \cdot L}, \quad L = 2\pi r
+\]
+
+For Si at 1550 nm, \(n_\mathrm{eff} \approx 2.4\) is a typical order-of-magnitude estimate. Coupling strength and Q are set by `gap` and `radius` in layout.
+
+### Parameters (layout units: µm)
+
+| Argument | Default | Meaning |
+|----------|---------|---------|
+| `radius` | `10.0` | Bend radius of the ring |
+| `gap` | `0.2` | Edge-to-edge gap between bus and ring |
+| `width` | `0.5` | Strip width of bus and ring |
+
+### Ports
+
+Bus ports following GDSFactory `ring_single` convention (`o1`, `o2`). Use `print(ring.ports)` to inspect.
+
+### Usage
+
+```python
+from components import my_ring
+from components.ring_resonator import ring_fsr
+
+ring = my_ring(radius=10.0, gap=0.2, width=0.5)
+ring.plot()
+print(ring.ports)
+
+fsr = ring_fsr(radius=10.0)  # µm, qualitative
+```
+
+### Preview
+
+![Ring resonator layout](assets/ring_resonator.png)
 
 ## License
 
