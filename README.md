@@ -184,7 +184,7 @@ Cross power is **not monotonic in gap** at fixed L: smaller gap increases κ, ad
 ![Gap sweep (qualitative CMT)](assets/coupler_gap_sweep.png)
 
 
-## Component 3: Mach–Zehnder interferometer (`my_mzi`)
+## Component 3: Mach–Zehnder interferometer (`my_mzi`) -- Optical switch!!!
 
 **Status:** implemented — [`components/mzi.py`](components/mzi.py)
 
